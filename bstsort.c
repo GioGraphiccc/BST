@@ -11,6 +11,10 @@ bool isCapital(char ch)
 {
     return (ch <= 'Z') && (ch >= 'A');
 }
+bool isLower(char ch)
+{
+    return (ch <= 'z') && (ch >= 'a');
+}
 bool isLetter(char ch)
 {
     return (ch <= 'z') && (ch >= 'A');
@@ -112,25 +116,29 @@ int main (int argc, char **argv)
         int i = 0; //outputContents index
         int wordLength = 0;
         bool CapitalWord = true;
-        for(int j = -1; j < SIZE; j++) //loop through inputContents
+
+        for(int j = 0; j < SIZE; j++) //loop through inputContents
         {
             wordLength++;
-            printf("%c", inputContents[j]);
+            printf("inputContents[%d] = %c\n", j, inputContents[j]);
             if(inputContents[j] == '\n') //find new line index
             {
-                printf("found newline\n");
-                for(int k = j - wordLength; k < j; k++)//start for loop at beginning of word
+                printf("found newline at: %d\n", j);
+                printf("K = ((%d)+1) - (%d)\n", j, wordLength);
+                for(int k = (j+1) - wordLength; k < j; k++)//start for loop at beginning of word
                 {
-                    printf("Checking: %c for capital\n", inputContents[k]);
-                    if(!(isCapital(inputContents[k]))) // if any letter in the word is not capital exit the for loop
+                    printf("Checking: %c for capital and newline\n", inputContents[k]);
+                    if(isLower(inputContents[k])) // if any letter in the word is not capital exit the for loop
                     {
                         printf("letter %c is not capital\n", inputContents[k]);
                         if(inputContents[k] != '\n')
                         {
-                            printf("letter %c is not newline\n", inputContents[k]);
+                            printf("letter %c is not newline or capital\n", inputContents[k]);
                             k = j;
                             CapitalWord = false;
                         }
+                        else    
+                            printf("letter %c is newline\n", inputContents[k]);
                     }
                 }
                 if(CapitalWord) //if the word found is all capital letters
