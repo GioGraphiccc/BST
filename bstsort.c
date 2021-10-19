@@ -119,7 +119,7 @@ int main (int argc, char **argv)
             if(inputContents[j] == '\n') //find new line index
             {
                 printf("found newline\n");
-                for(int k = j - wordLength-1; k < j; k++)//start for loop at beginning of word
+                for(int k = j - wordLength; k < j; k++)//start for loop at beginning of word
                 {
                     printf("Checking: %c for capital\n", inputContents[k]);
                     if(!(isCapital(inputContents[k]))) // if any letter in the word is not capital exit the for loop
