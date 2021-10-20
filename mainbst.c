@@ -1,4 +1,5 @@
 #include "mainbst.h"
+#include "bstsort.h"
 
 void print_usage(){
     printf("Usage: bstsort [-c] [-l] [-o output_file_name] [input_file_name].\n");
@@ -103,6 +104,7 @@ int main (int argc, char **argv)
         strcat(inputFile, ".txt");
         populateArray(inputFile, inputContents);
         printArray(inputContents, SIZE);
+        
     }
     //Find capital words and output them into the outputContents
     if(cflag > 0)
@@ -122,7 +124,7 @@ int main (int argc, char **argv)
         //         printf("K = ((%d)+1) - (%d)\n", j, wordLength);
         //         for(int k = (j+1) - wordLength; k < j; k++)//start for loop at beginning of word
         //         {
-        //             printf("Checking: %c for capital and newline\n", inputContents[k]);
+        //             printf("Checking: %c for capital and newline\n", inputContents[k]);s
         //             if(isLower(inputContents[k])) // if any letter in the word is not capital exit the for loop
         //             {
         //                 printf("letter %c is not capital\n", inputContents[k]);
