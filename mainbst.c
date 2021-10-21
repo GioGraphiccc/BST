@@ -46,7 +46,11 @@ int main (int argc, char **argv)
     char inputFile[SIZE];
     char outputFile[SIZE];
     extern char *optarg;
+    bool inputFileIncluded = false;
+    struct node* root = NULL;
     
+    
+    char *userInputContents = malloc( sizeof(char) * (500));
     char *inputContents = malloc( sizeof(char) * (500));
     char *outputContents = malloc( sizeof(char) * (500));
     while((input = getopt(argc, argv, "clo::")) != -1){
@@ -104,57 +108,40 @@ int main (int argc, char **argv)
         strcat(inputFile, ".txt");
         populateArray(inputFile, inputContents);
         printArray(inputContents, SIZE);
+        inputFileIncluded = true;
+    }
+    else
+    {
+        char word[20];
+        printf("Enter word. Enter 'n' to stop\n");
+        scanf("%s", word);
+        if(word[0] != 'n' && word[1] != '\0')
+        {
+            printf("Inserting %s as root.\n", word);
+            root = insert(root,word); //insert first word as root
+            scanf("%s", word);
+            while (word[0] != 'n' && word[1] != '\0')
+            {
+                printf("Inserting word %s\n", word);
+                insert(root,word);
+                scanf("%s", word);
+            }
+        }
         
+        printf("printing BST: \n");
+        printOrder(root);
     }
     //Find capital words and output them into the outputContents
     if(cflag > 0)
     {
-        // printf("Entered -C\n");
-        // int i = 0; //outputContents index
-        // int wordLength = 0;
-        // bool CapitalWord = true;
-
-        // for(int j = 0; j < SIZE; j++) //loop through inputContents
-        // {
-        //     wordLength++;
-        //     printf("inputContents[%d] = %c\n", j, inputContents[j]);
-        //     if(inputContents[j] == '\n') //find new line index
-        //     {
-        //         printf("found newline at: %d\n", j);
-        //         printf("K = ((%d)+1) - (%d)\n", j, wordLength);
-        //         for(int k = (j+1) - wordLength; k < j; k++)//start for loop at beginning of word
-        //         {
-        //             printf("Checking: %c for capital and newline\n", inputContents[k]);s
-        //             if(isLower(inputContents[k])) // if any letter in the word is not capital exit the for loop
-        //             {
-        //                 printf("letter %c is not capital\n", inputContents[k]);
-        //                 if(inputContents[k] != '\n') 
-        //                 {
-                            
-        //                     printf("letter %c is not newline or capital\n", inputContents[k]);
-        //                     k = j;
-        //                     CapitalWord = false;
-        
-        //                 }
-        //                 else    
-        //                     printf("letter %c is newline\n", inputContents[k]);
-        //             }   
-        //         }
-        //         if(CapitalWord) //if the word found is all capital letters
-        //         {
-        //             printf("Found Capital Word\n");
-        //             for(int g = j - wordLength; g < j; g++)//start for loop at beginning of all capital word and stop at end of word (j). j is currently indexed at \n
-        //             {
-        //                 outputContents[i] = inputContents[g];
-        //                 i++; //increment outputContents index
-        //             }
-        //         }
-        //         printf("finished word\n");
-        //         CapitalWord = true;
-        //         wordLength = 0;
-        //     }
-        // }
-        // printf("\n");
+        if(inputFileIncluded)   //print all capitals from input file
+        {
+            
+        }
+        else    //print all capitals from standard input.
+        {
+            
+        }
     }
     if(oflag > 0) 
     {
