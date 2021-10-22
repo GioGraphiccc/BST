@@ -113,21 +113,26 @@ int main (int argc, char **argv)
     else
     {
         char word[20];
+        bool isCapital;
         printf("Enter word. Enter 'n' to stop\n");
         scanf("%s", word);
+        printf("Checking %s if capital.\n", word);
+        isCapital = checkWordCapital(word);
         if(word[0] != 'n' && word[1] != '\0')
         {
+            
             printf("Inserting %s as root.\n", word);
-            root = insert(root,word); //insert first word as root
+            root = insert(root, word, isCapital); //insert first word as root
             scanf("%s", word);
             while (word[0] != 'n' && word[1] != '\0')
             {
+                printf("Checking %s if capital.\n", word);
+                isCapital = checkWordCapital(word);
                 printf("Inserting word %s\n", word);
-                insert(root,word);
+                insert(root, word, isCapital);
                 scanf("%s", word);
             }
         }
-        
         printf("printing BST: \n");
         printOrder(root);
     }

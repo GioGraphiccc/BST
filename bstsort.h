@@ -63,16 +63,16 @@ void printOrder(struct node* root)
         printOrder(root->right);
     }
 }
-struct node* insert(struct node* node, char key[])
+struct node* insert(struct node* node, char key[], bool isCapital)
 {
     if(node == NULL)
-        return newNode(key);
+        return newNode(key, isCapital);
     if(isEqual(key, node->key) == false)
     {
         if (!(isGreater(key, node->key)))
-            node->left = insert(node->left, key);
+            node->left = insert(node->left, key, isCapital);
         else if(isGreater(key, node->key))
-            node->right = insert(node->right,key);
+            node->right = insert(node->right, key, isCapital);
         return node;
     }    
 }
@@ -81,16 +81,22 @@ bool checkWordCapital(char word[])
 {
     int i = 0;
     bool isCapital = true;
-    while(word[i] != '\0' && isCapital && word[i] != '\n')
+
+    printf("Test\n");
+    printf("%s\n", word);
+    while(word[0] != '\0' && isCapital && word[1] != '\n')
     {
+        printf("checking letter %c if capital.", word[i]);
         if(word[i] >= 'A' && word[i] <= 'Z')
             i++;
         else
-            isCapital == false;
+            isCapital = false;
     }
     if(isCapital)
-        printf("%s is capital!", word);
-    else 
-        printf("%s is not capital!", word);
+        printf("%s is capital!\n", word);
+    else
+    {
+        printf("%s is not capital!\n", word);
+    } 
     return isCapital;
 }
