@@ -15,3 +15,5 @@ struct node* newNode(char item[], bool capital);
 void printOrder(struct node* root);
 struct node* insert(struct node* node, char key[], bool isCapital);
 bool checkWordCapital(char word[]);
+void printCapitals(struct node* root);
+void populateArray(char *filename, char *array, struct node* root);

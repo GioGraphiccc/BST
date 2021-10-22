@@ -6,6 +6,6 @@
 
 void print_usage();
 int findIndex(char index, char *word);
-void printArray(char *arr, int size);
+void printArray(char *arr);
 bool stopInput(char *word);
 void copyWord(char *original, char *add);

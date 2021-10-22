@@ -15,9 +15,15 @@ bool isEqual(char *a, char *b)
 {
     for (int i = 0; i < 20; i++)
     {
+        if(a[i] == 0 && b[i] == 0)
+            break;
         if(a[i] != b[i])
+        {
+            printf("%s and %s are not Equal\n", a,b);
             return false;
+        }
     }
+    printf("%s and %s are Equal!\n", a,b);
     return true;
 }
 void printNode(char key[])
@@ -82,14 +88,21 @@ struct node* insert(struct node* node, char key[], bool isCapital)
         return node;
     }    
 }
+void printCapitals(struct node* root)
+{
+    if(root != NULL)
+    {
+        printCapitals(root->left);
+        if(root->isCapital)
+            printNode(root->key);
+        printCapitals(root->right);
+    }
+}
 
-bool checkWordCapital(char word[])
+bool checkWordCapital(char *word)
 {
     int i = 0;
     bool isCapital = true;
-
-    printf("Test\n");
-    printf("%s\n", word);
     while(!(stopInput(word)) && isCapital)
     {
         if(word[i] == '\0')
@@ -107,4 +120,61 @@ bool checkWordCapital(char word[])
         printf("%s is not capital!\n", word);
     } 
     return isCapital;
+}
+
+void populateArray(char *filename, char *array, struct node* root)
+{
+    char ch;
+    char *word = malloc( sizeof(char) * (20));
+    FILE *spData;
+    bool isRoot = true;
+    bool isCapital;
+    bool newWord = true;
+    printf("Word before: %s\n", word);
+    //check if file exists
+        spData = fopen(filename, "r");
+        if (spData == NULL)
+        {
+            fprintf(stderr, "%s", "File not found");
+            print_usage();
+            exit(5);
+        }
+        //contents of the input file is set to inputContents[]
+        int i = 0;
+        int nullIndex;
+        while ((ch = fgetc(spData)) != EOF)
+            {
+                if(isLetter(ch) && ch != '\0' && ch != '\n')
+                {
+                    nullIndex = findIndex('\0', word);
+                    word[nullIndex] = ch;
+                    printf("%d\n",ch);
+                    printf("Added letter %c.\n", ch);
+                }
+                else
+                {
+                    if(isRoot)
+                    {
+                        printf("Word is %s\n", word);
+                        isRoot = false;
+                        isCapital = checkWordCapital(word);
+                        printf("Inserting %s as root.\n", word);
+                        root = insert(root, word, isCapital);
+                        memset(word, 0, 20);
+                    }
+                    else
+                    {
+                        printf("Word is %s\n", word);
+                        isCapital = checkWordCapital(word);
+                        printf("Inserting %s.\n", word);
+                        insert(root, word, isCapital);
+                        memset(word,0,20);
+                    }
+                }
+                    
+                array[i] = ch;
+                i++;
+            }
+            printf("\n");
+        fclose(spData);
 }

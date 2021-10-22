@@ -9,14 +9,14 @@ int findIndex(char index, char *word)
 void print_usage(){
     printf("Usage: bstsort [-c] [-l] [-o output_file_name] [input_file_name].\n");
 }
-void printArray(char *arr, int size)
+void printArray(char *arr)
 {
     printf("Printing...\n");
-    for(int i = 0; i < size; i++)
+    for(int i = 0; isLetter(i); i++)
     {
         printf("%c", arr[i]);
     }
-    printf("\n");   
+    printf("Done.\n");   
 }
 bool stopInput(char *word)
 {
@@ -48,63 +48,14 @@ void appendArray(char *original, char *add)
 void copyWord(char *original, char *add)
 {
     int i = 0, j = 0;
-    while(isLetter(add[j]))
+    while(isLetter(add[j]) || add[j] == '-')
     {
         original[i] = add[j];
         i++;
         j++;
     }
 }
-void populateArray(char *filename, char *array, struct node* root)
-{
-    char ch;
-    char word[20];
-    FILE *spData;
-    bool isRoot = true;
-    bool isCapital;
-    
-    //check if file exists
-        spData = fopen(filename, "r");
-        if (spData == NULL)
-        {
-            fprintf(stderr, "%s", "File not found");
-            print_usage();
-            exit(5);
-        }
-        //contents of the input file is set to inputContents[]
-        int i = 0;
-        while ((ch = fgetc(spData)) != EOF)
-            {
-                if(isLetter(ch))
-                {
-                    printf("test\n");
-                    word[findIndex('\0', word)] = ch;
-                }
-                else if(ch == '\0')
-                {
-                    if(isRoot)
-                    {
-                        printf("test1\n");
-                        isRoot = false;
-                        isCapital = checkWordCapital(word);
-                        printf("Inserting %s as root.\n", word);
-                        root = insert(root, word, isCapital);
-                    }
-                    else
-                    {
-                        printf("test2\n");
-                        isCapital = checkWordCapital(word);
-                        printf("Inserting %s.\n", word);
-                        insert(root, word, isCapital);
-                    }
-                }
-                    
-                array[i] = ch;
-                i++;
-            }
-            printf("\n");
-        fclose(spData);
-}
+
 int main (int argc, char **argv)
 {
     int input; 
@@ -118,6 +69,7 @@ int main (int argc, char **argv)
     extern char *optarg;
     bool inputFileIncluded = false;
     struct node* root = NULL;
+    char argument[SIZE];
     
     
     char *userInputContents = malloc( sizeof(char) * (500));
@@ -165,6 +117,7 @@ int main (int argc, char **argv)
             p = argv[argc-i];
             if(*(p) == '-' && *(p+1) == 'o')
             {
+                printf("adding .txt to outputfile name...\n");
                 appendArray(outputFile, argv[argc-i+1]);
                 appendArray(outputFile, ".txt");
                 break;
@@ -173,15 +126,17 @@ int main (int argc, char **argv)
     }
     
     //if an input file has been included
-    if(!(isEqual(argv[argc-1], outputFile)) && !(isEqual(argv[argc-1], "-c")) && !(isEqual(argv[argc-1], "-l")))
+    copyWord(argument, argv[argc-1]);
+    printf("last argument is: %s\n", argument);
+    if(!(isEqual(argument, outputFile)) && !(isEqual(argument, "-c")) && !(isEqual(argument, "-l")))
     {
         //assign the name of the input file to inputFile
-
+        printf("Adding .txt to inputfile name\n.");
         copyWord(inputFile, argv[argc-1]); 
         appendArray(inputFile, ".txt");
         populateArray(inputFile, inputContents, root);
-        printArray(inputContents, SIZE);
         inputFileIncluded = true;
+        printOrder(root);
     }
     else
     {
@@ -189,12 +144,8 @@ int main (int argc, char **argv)
         bool isCapital;
         printf("Enter word. Enter 'n' to stop\n");
         scanf("%s", word);
-        printf("i is at index : %d.\n", findIndex('i', word));
-        printf("Checking %s if capital.\n", word);
-        isCapital = checkWordCapital(word);
         if(!(stopInput(word)))
         {
-            printf("i is at index : %d.\n", findIndex('i', word));
             printf("Inserting %s as root.\n", word);
             root = insert(root, word, isCapital); //insert first word as root
             scanf("%s", word);
@@ -207,8 +158,12 @@ int main (int argc, char **argv)
                 scanf("%s", word);
             }
         }
+        if(stopInput(word))
+            printf("Stopped input.\n");
         printf("printing BST: \n");
         printOrder(root);
+        printf("Printing only capitals.\n");
+        printCapitals(root);
     }
     //Find capital words and output them into the outputContents
     if(cflag > 0)
