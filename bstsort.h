@@ -11,9 +11,14 @@ bool isLetter(char ch);
 
 //NODE STRUCT
 struct node;
-struct node* newNode(char item[], bool capital);
+struct node* newNode(char item[]);//, bool isCapital);
 void printOrder(struct node* root);
-struct node* insert(struct node* node, char key[], bool isCapital);
-bool checkWordCapital(char word[]);
+struct node* insert(struct node* node, struct node* add);
+void transfer(struct node* root, char* filename);
+void transferCapitals(struct node* root, char* filename);
+void transferLower(struct node* root, char* filename);
+//bool checkWordCapital(char word[]);
+int checkCase(char *word);
 void printCapitals(struct node* root);
-void populateArray(char *filename, char *array, struct node* root);
+void printLower(struct node* root);
+void populateTree(char *filename, char *array, struct node* root);

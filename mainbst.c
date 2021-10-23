@@ -31,7 +31,6 @@ void appendArray(char *original, char *add)
 {
     int i = 0; 
     int j = 0;
-    printf("BEFORE: %s\n", original);
     while (isLetter(original[i]))
     {
         i++;
@@ -42,8 +41,6 @@ void appendArray(char *original, char *add)
         i++;
         j++;
     }
-    printf("After: %s\n", original);
-
 }
 void copyWord(char *original, char *add)
 {
@@ -66,10 +63,12 @@ int main (int argc, char **argv)
     int SIZE = 50;
     char inputFile[SIZE];
     char outputFile[SIZE];
+    char temp[SIZE];
     extern char *optarg;
     bool inputFileIncluded = false;
     struct node* root = NULL;
     char argument[SIZE];
+    int keySize;
     
     
     char *userInputContents = malloc( sizeof(char) * (500));
@@ -117,8 +116,8 @@ int main (int argc, char **argv)
             p = argv[argc-i];
             if(*(p) == '-' && *(p+1) == 'o')
             {
-                printf("adding .txt to outputfile name...\n");
-                appendArray(outputFile, argv[argc-i+1]);
+                copyWord(outputFile, argv[argc-i+1]);
+                copyWord(temp, outputFile);
                 appendArray(outputFile, ".txt");
                 break;
             }
@@ -127,75 +126,77 @@ int main (int argc, char **argv)
     
     //if an input file has been included
     copyWord(argument, argv[argc-1]);
-    printf("last argument is: %s\n", argument);
-    if(!(isEqual(argument, outputFile)) && !(isEqual(argument, "-c")) && !(isEqual(argument, "-l")))
+    if(!(isEqual(argument, temp)) && !(isEqual(argument, "-c")) && !(isEqual(argument, "-l")))
     {
         //assign the name of the input file to inputFile
-        printf("Adding .txt to inputfile name\n.");
+        printf("Adding .txt to inputfile name.\n");
         copyWord(inputFile, argv[argc-1]); 
         appendArray(inputFile, ".txt");
-        populateArray(inputFile, inputContents, root);
+        populateTree(inputFile, inputContents, root);
         inputFileIncluded = true;
+        printf("Print BST.\n");
         printOrder(root);
     }
     else
     {
-        char word[20];
-        bool isCapital;
+        char word[20];;
         printf("Enter word. Enter 'n' to stop\n");
         scanf("%s", word);
         if(!(stopInput(word)))
         {
             printf("Inserting %s as root.\n", word);
-            root = insert(root, word, isCapital); //insert first word as root
+            struct node* newWord = newNode(word);
+            root = insert(root, newWord); //insert first word as root
             scanf("%s", word);
             while (!(stopInput(word)))
             {
                 printf("Checking %s if capital.\n", word);
-                isCapital = checkWordCapital(word);
                 printf("Inserting word %s\n", word);
-                insert(root, word, isCapital);
+                struct node* wordNode = newNode(word);
+                root = insert(root, wordNode);
                 scanf("%s", word);
             }
         }
         if(stopInput(word))
             printf("Stopped input.\n");
-        printf("printing BST: \n");
-        printOrder(root);
-        printf("Printing only capitals.\n");
-        printCapitals(root);
     }
     //Find capital words and output them into the outputContents
-    if(cflag > 0)
+    if(oflag > 0)
     {
-        if(inputFileIncluded)   //print all capitals from input file
+        if(cflag == 0 && lflag == 0)
         {
-            
+            transfer(root, outputFile);
         }
-        else    //print all capitals from standard input.
+        else
         {
-            
+            if(cflag > 0)
+            {
+
+                printf("outputFile: %s", outputFile);
+                transferCapitals(root, outputFile);
+            }
+            else if(lflag > 0) 
+            {   
+                transferLower(root, outputFile);
+            }
         }
     }
-    if(oflag > 0) 
+    else
     {
-    //     spData = fopen(outputFile, "w");
-    //     printf("Printing inputContents: \n");
-    //     for (int i = 0; i < 500; i++)
-    //     {
-    //         printf("%c", inputContents[i]);
-    //         fputc(inputContents[i], spData);
-    //     }
-    //     printf("\n");
-    //     fclose(spData);
-    // }
-    // else // if no outputfile was mentioned. Print to screen TODO: CHANGE INPUTCONTENTS TO OUTPUTCONTENTS
-    // {
-    //     printf("No output file detected. Output: \n");
-    //     for (int i = 0; i < 500; i++)
-    //     {
-    //         printf("%c", inputContents[i]);
-    //     }
-    //     printf("\n");
+        if(cflag == 0 && lflag == 0)
+        {
+            printOrder(root);
+        }
+        else
+        {
+            if(cflag > 0)
+            {
+                printCapitals(root);
+            }
+            else if(lflag > 0) 
+            {   
+                printLower(root);
+            }
+        }
     }
 }
