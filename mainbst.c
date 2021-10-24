@@ -1,5 +1,20 @@
 #include "mainbst.h"
 #include "bstsort.h"
+void getUserInput(char *userInput)
+{
+    char *word;
+    char newline = '\n';
+    printf("Enter word. Press enter on blank to stop\n");
+    scanf("%s", word);                      //scan for word
+    while(!stopInput(word))
+    {
+        printf("adding \\n to (%s)\n", word);
+        word[findIndex('\0', word)] = '\n'; //appends \n to word
+        strcat(userInput, word);       //add word to userInput
+        printf("You entered: (%s)\n", word);
+        scanf("%s", word);                  //scan for another word
+    }
+}
 int findIndex(char index, char *word)
 {
     int i = 0;
@@ -12,46 +27,38 @@ void print_usage(){
 void printArray(char *arr)
 {
     printf("Printing...\n");
-    for(int i = 0; isLetter(i); i++)
+    printf("(");
+    for(int i = 0; i < strlen(arr); i++)
     {
         printf("%c", arr[i]);
     }
+    printf(")\n");
     printf("Done.\n");   
 }
 bool stopInput(char *word)
 {
-    if(word[1] == '\0')
-    {
-        if(word[0] == 'n')
-            return true;
-    }
-    return false;
+    return (word[0] == '\n' || (word[0] == 'n' && word[1] == '\0')) ? true : false;
+    //word[0] == 0 || word[0] == 13 || (word[0] == 110 && word[1] == 0))
 }
 void appendArray(char *original, char *add)
 {
+    if(strlen(original) == 0)
+    {
+        strcpy(original, add);
+        return;
+    }
+
     int i = 0; 
-    int j = 0;
-    while (isLetter(original[i]))
-    {
-        i++;
-    }
-    while(isLetter(add[j]) || add[j] == '.')
+    int j = 0;    
+    i = strlen(original); //start appending up to this
+    while(isLetter(add[j]) || add[j] == '.' || add[j] == '\n')
     {
         original[i] = add[j];
         i++;
         j++;
     }
 }
-void copyWord(char *original, char *add)
-{
-    int i = 0, j = 0;
-    while(isLetter(add[j]) || add[j] == '-')
-    {
-        original[i] = add[j];
-        i++;
-        j++;
-    }
-}
+
 
 int main (int argc, char **argv)
 {
@@ -61,9 +68,10 @@ int main (int argc, char **argv)
     int oflag = 0;
     int lineCount = 1;
     int SIZE = 50;
-    char inputFile[SIZE];
+    
     char outputFile[SIZE];
     char temp[SIZE];
+    char userInput[SIZE];
     extern char *optarg;
     bool inputFileIncluded = false;
     struct node* root = NULL;
@@ -84,9 +92,6 @@ int main (int argc, char **argv)
                 break;
             case 'o':
                 oflag=1;
-                //printf("Input: %d\n", input);
-                //printf("Optarg: %s\n", optarg);
-                //strcpy(outputFile, optarg);
                 break;
             case '?':
                 if(optopt == 'o') //supposed to check if o has arguement
@@ -116,8 +121,8 @@ int main (int argc, char **argv)
             p = argv[argc-i];
             if(*(p) == '-' && *(p+1) == 'o')
             {
-                copyWord(outputFile, argv[argc-i+1]);
-                copyWord(temp, outputFile);
+                strcpy(outputFile, argv[argc-i+1]);
+                strcpy(temp, outputFile);
                 appendArray(outputFile, ".txt");
                 break;
             }
@@ -125,47 +130,57 @@ int main (int argc, char **argv)
     }
     
     //if an input file has been included
-    copyWord(argument, argv[argc-1]);
+    strcpy(argument, argv[argc-1]);
     if(!(isEqual(argument, temp)) && !(isEqual(argument, "-c")) && !(isEqual(argument, "-l")))
     {
         //assign the name of the input file to inputFile
-        printf("Adding .txt to inputfile name.\n");
-        copyWord(inputFile, argv[argc-1]); 
-        appendArray(inputFile, ".txt");
-        populateTree(inputFile, inputContents, root);
-        inputFileIncluded = true;
-        printf("Print BST.\n");
-        printOrder(root);
+        FILE* spData;
+        char inputFile[SIZE];
+        memset(inputFile, 0, SIZE);
+        strcpy(inputFile, argv[argc-1]); 
+        appendArray(inputFile, ".txt"); //append .txt to inputfile
+
+        spData = fopen(inputFile, "r");
+        printf("File name is: %s\n", inputFile);
+        if (spData == NULL)
+        {
+            printf("Error! opening file\n");
+            // Program exits if the file pointer returns NULL.
+            exit(1);
+        }
+        char c;
+        int i = 0;
+        while((c = fgetc(spData)) != EOF)
+        {
+            if(c != 0)
+            {
+                inputContents[i] = c;   
+                i++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        fclose(spData);
+        //printArray(inputContents);
+        populateTree(inputContents, root); //NEW
     }
     else
     {
-        char word[20];;
-        printf("Enter word. Enter 'n' to stop\n");
-        scanf("%s", word);
-        if(!(stopInput(word)))
-        {
-            printf("Inserting %s as root.\n", word);
-            struct node* newWord = newNode(word);
-            root = insert(root, newWord); //insert first word as root
-            scanf("%s", word);
-            while (!(stopInput(word)))
-            {
-                printf("Checking %s if capital.\n", word);
-                printf("Inserting word %s\n", word);
-                struct node* wordNode = newNode(word);
-                root = insert(root, wordNode);
-                scanf("%s", word);
-            }
-        }
-        if(stopInput(word))
-            printf("Stopped input.\n");
+        printf("Getting standard input\n");
+        getUserInput(userInput);
+        populateTree(userInput, root);
     }
     //Find capital words and output them into the outputContents
+    printf("Print BST.\n");
+    //printOrder(root);
     if(oflag > 0)
     {
         if(cflag == 0 && lflag == 0)
         {
             transfer(root, outputFile);
+            //deleteTree
         }
         else
         {
@@ -174,10 +189,12 @@ int main (int argc, char **argv)
 
                 printf("outputFile: %s", outputFile);
                 transferCapitals(root, outputFile);
+                //deleteTree
             }
             else if(lflag > 0) 
             {   
                 transferLower(root, outputFile);
+                //deleteTree
             }
         }
     }

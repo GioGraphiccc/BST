@@ -1,6 +1,25 @@
 #include "bstsort.h"
 #include "mainbst.h"
 
+void copyWord(char *original, char *add)
+{
+    memset(original, 0, strlen(original));
+
+    int j = 0;
+    printf("add: (%s)\n", add);
+    printf("original: (%s)\n", original);
+    printf("strlen(add): %ld\n", strlen(add));
+    printf("strlen(original): %ld\n", strlen(original));
+    // while((isLetter(add[j]) || add[j] == '-') && j < strlen(add))
+    // {
+    //     printf("strlen(original)while: %ld\n", strlen(original));
+    //     printf("Add[j]: (%c)\n", add[j]);
+    //     original[j] = add[j];
+    //     j++;
+    // }
+    strcpy(original, add);
+    printf("J: %d.\nstrlen(original): %ld\nORIGINAL(copyword): (%s)\n", j, strlen(original), original);
+}
 bool isGreater(char *a, char *b)
 {
     int i = 0;
@@ -17,6 +36,8 @@ bool isEqual(char *a, char *b)
 {
     bool is_Equal = false;
     int i = 0;
+    if(a == NULL || b == NULL)
+        return is_Equal;
     for (; (a[i] == 0 || b[i] == 0); i++)
     {
         if(a[i] != b[i])
@@ -25,10 +46,10 @@ bool isEqual(char *a, char *b)
     is_Equal = (a[i] == b[i]);
     return is_Equal;
 }
-void printNode(char key[])
+void printNode(char *key)
 {
     int i = 0;
-    while(key[i] != '\0')
+    while(key[i] != 0)
     {
         printf("%c", key[i]);
         i++;
@@ -37,46 +58,39 @@ void printNode(char key[])
 }
 bool isLetter(char ch)
 {
-    if(ch >= 'A' && ch <= 'Z')
+    if(ch >= CAPITALA && ch <= CAPITALZ)
         return true;
         
-    if(ch >= 'a' && ch <= 'z')
+    if(ch >= LOWERA && ch <= LOWERZ)
         return true;
     return false;
 }
 
-//NODE STRUCT
-struct node
+void newNode(struct node* inputNode, char *item)
 {
-    int keySize;
-    char *key;
-    //bool isCapital; //ADDED
-    int Case;
-    struct node *left;
-    struct node *right;
-};
-struct node* newNode(char item[])//, int case)
-{
+    //inputNode = (struct node*)malloc(sizeof(struct node));
+    inputNode->keySize = strlen(item); 
+    inputNode->key = (char*)malloc(sizeof(char*) * inputNode->keySize);
     
-    struct node* temp = (struct node*)malloc(sizeof(struct node));
-    int i = 0;
-    for(; item[i] == 0; i++)
-    {
-        temp->key[i] = item[i];
-    }
-    int keySize = i;
-    temp->Case = checkCase(item);
-    temp->left = temp ->right = NULL;
-    return temp;
+    strcpy(inputNode->key, item);
+    printf("(newNode) Item is: (%s)\ninputNode->key is: (%s)\n", item, inputNode->key);
+    inputNode->Case = checkCase(item);
+    inputNode->left = inputNode->right = NULL;
 };
 
 void printOrder(struct node* root)
 {
+    printf("KEY IS: %s", root->key);
     if(root != NULL)
-    {
+    { 
+        printf("root not null\n");
         printOrder(root->left);
         printNode(root->key);
         printOrder(root->right);
+    }
+    else
+    {
+        printf("root is null.\n");
     }
 }
 // struct node* insert(struct node* node, char key[], bool isCapital, int keySize)
@@ -92,21 +106,24 @@ void printOrder(struct node* root)
 //         return node;
 //     }    
 // }
+
 struct node* insert(struct node* node, struct node* add)
 {
+    
     if(node == NULL)
         return add;
-    if(isEqual(add->key, node->key) == false)
-    {
-        if (!(isGreater(add->key, node->key)))
-            node->left = insert(node->left,add);
-        else// if(isGreater(add->key, node->key))
-            node->right = insert(node->right,add);
-        return node;
-    } 
+    //printf("%s : %s", (add->key == NULL) ? "Add->key is NULL" : "", (node->key == NULL) ? "Node->key is NULL\n" : "");
+    if(isEqual(add->key, node->key))
+        return NULL;
+
+    if (!(isGreater(add->key, node->key)))
+        node->left = insert(node->left,add);
+    else// if(isGreater(add->key, node->key))
+        node->right = insert(node->right,add);
 }
 void printCapitals(struct node* root)
 {
+    
     if(root != NULL)
     {
         printCapitals(root->left);
@@ -114,6 +131,7 @@ void printCapitals(struct node* root)
             printNode(root->key);
         printCapitals(root->right);
     }
+    
 }
 void printLower(struct node* root)
 {
@@ -131,12 +149,12 @@ void transfer(struct node* root, char* filename)
     char word[20];
     if (file == NULL)
     {
-        fprintf(stderr, "%s", "File not found\n");
+        fprintf(stderr, "%s", "File not found in trasnfer\n");
         print_usage();
         exit(5);
     }
     transfer(root->left, filename);
-    copyWord(word, root->key);
+    strcpy(word, root->key);
     fprintf(file, "%s", word);
     fprintf(file,"\n");
     transfer(root->right, filename);
@@ -151,14 +169,14 @@ void transferCapitals(struct node* root, char* filename)
     fprintf(file, "%c", 'C');
     if (file == NULL)
     {
-        fprintf(stderr, "%s", "File not found!!!!!!!!!!!!!!!!!!!!!!!\n");
+        fprintf(stderr, "%s", "File not found in transfer capitals\n");
         print_usage();
         exit(5);
     }
     transferCapitals(root, filename);
     if(root->Case == 0)
     {
-        copyWord(word,root->key);
+        strcpy(word,root->key);
         fprintf(file, "%s", word);
         fprintf(file, "\n");
     }
@@ -171,14 +189,14 @@ void transferLower(struct node* root, char* filename)
     char word[20];
     if (file == NULL)
     {
-        fprintf(stderr, "%s", "File not found\n");
+        fprintf(stderr, "%s", "File not found in transferlower\n");
         print_usage();
         exit(5);
     }
     transferLower(root, filename);
     if((root->Case) == -1)
     {
-        copyWord(word,root->key);
+        strcpy(word,root->key);
         fprintf(file, "%s", word);
         fprintf(file, "\n");
     }
@@ -220,7 +238,6 @@ int checkCase(char *word)
         {
             if(word[i] == 0)
                 break;
-            printf("checking letter %c if lower.\n", word[i]);
             if(word[i] >= 97 && word[i] <= 122)
                 i++;
             else   
@@ -234,8 +251,7 @@ int checkCase(char *word)
             isLower = false;
             if(word[i] == 0)
                 break;
-            printf("checking letter %c if capital.\n", word[i]);
-            if(word[i] >= 'A' && word[i] <= 'Z')
+            if(word[i] >= 65 && word[i] <= 90)
                 i++;
             else
                 isCapital = false;
@@ -251,66 +267,43 @@ int checkCase(char *word)
         printf("%s is all capitals.\n", word);
         return 1;
     }
-    printf("%s is mixed", word);
+    printf("%s is mixed\n", word);
     return 0;
 }
 
-void populateTree(char *filename, char *array, struct node* root)
+void populateTree(char *userInput, struct node* root)
 {
-    char ch;
-    char *word = malloc( sizeof(char) * (20));
-    FILE *spData;
+    int wordSize = 20;
+    char *temp = (char*)malloc(sizeof(char*) * wordSize);
     bool isRoot = true;
-    bool newWord = true;
-    //check if file exists
-    spData = fopen(filename, "r");
-    if (spData == NULL)
-    {
-        fprintf(stderr, "%s", "File not found\n");
-        print_usage();
-        exit(5);
-    }
-    //contents of the input file is set to inputContents[]
     int i = 0;
-    int nullIndex;
-    while ((ch = fgetc(spData)) != EOF )
+    //printArray(userInput);
+    while(true) //infinite loop to break out of 
     {
-        while(isLetter(ch) && ch != '\0' && ch != '\n')
+        int j = 0;
+        memset(temp, 0, wordSize);
+        while((userInput[i] != '\n' && userInput[i] != 0)) //get word until \n or \0 in userInput
         {
-            nullIndex = findIndex('\0', word);
-            word[nullIndex] = ch;
-            printf("%d\n",ch);
-            printf("Added letter %c.\n", ch);
-            ch = fgetc(spData);
+            temp[j] = userInput[i];
+            j++;
+            i++;
         }
-        printf("\n%d : %c\n", ch, ch);
-        printf("(0: (%d:%c))(1: (%d:%c))\n", word[0], word[0], word[1], word[1]);
-        if(word[0] == 0)
+        
+        i++; //skip over \n
+        printf("Adding: %s\n", temp);
+        struct node newWord;
+        newNode(&newWord, temp);
+        
+        if(isRoot)
         {
-            printf("detected\n");
-            continue;
+            isRoot = false;
+            root = insert(root,&newWord);
         }
-            
-        // else
-        // {
-            //if(isRoot)
-            //{
-        printf("Word is %s\n", word);
-        struct node* newWord = newNode(word);
-        root = insert(root,newWord);
-        memset(word, 0, 20);
-            //}
-            // else
-            // {
-            //     printf("Word is %s\n", word);
-            //     isCapital = checkWordCapital(word);
-            //     printf("Inserting %s.\n", word);
-            //     struct node* newWord = newNode(word, isCapital);
-            //     root = insert(root, newWord);
-            //     memset(word,0,20);
-            // }
-        //}
-    }
-    printf("\n");
-    fclose(spData);
+        else
+        {
+            insert(root, &newWord);
+        }
+        if(userInput[i] == 0)
+            break;
+    } 
 }
