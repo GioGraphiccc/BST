@@ -282,7 +282,7 @@ void populateTree(char *userInput, struct node* root)
     {
         int j = 0;
         memset(temp, 0, wordSize);
-        while((userInput[i] != '\n' && userInput[i] != 0)) //get word until \n or \0 in userInput
+        while(isLetter(userInput[i])) //get word until \n or \0 in userInput
         {
             temp[j] = userInput[i];
             j++;
