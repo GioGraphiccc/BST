@@ -80,10 +80,10 @@ void newNode(struct node* inputNode, char *item)
 
 void printOrder(struct node* root)
 {
-    printf("KEY IS: %s", root->key);
+    
     if(root != NULL)
     { 
-        printf("root not null\n");
+        printf("KEY IS: %s", root->key);
         printOrder(root->left);
         printNode(root->key);
         printOrder(root->right);
@@ -282,28 +282,31 @@ void populateTree(char *userInput, struct node* root)
     {
         int j = 0;
         memset(temp, 0, wordSize);
-        while(isLetter(userInput[i])) //get word until \n or \0 in userInput
+        while(isLetter(userInput[i]) && userInput[i] != 0) //get word until \n or \0 in userInput
         {
             temp[j] = userInput[i];
             j++;
             i++;
         }
-        
         i++; //skip over \n
-        printf("Adding: %s\n", temp);
-        struct node newWord;
-        newNode(&newWord, temp);
         
-        if(isRoot)
+        if(isLetter(temp[0]))
         {
-            isRoot = false;
-            root = insert(root,&newWord);
+            printf("Adding: (%s)\n", temp);
+            struct node newWord;
+            newNode(&newWord, temp);
+            
+            if(isRoot)
+            {
+                isRoot = false;
+                root = insert(root,&newWord);
+            }
+            else
+            {
+                insert(root, &newWord);
+            }
         }
-        else
-        {
-            insert(root, &newWord);
-        }
-        if(userInput[i] == 0)
+        if(userInput[i] == 0) // break out of infinite loop if end of Userinput has been reached
             break;
     } 
 }

@@ -172,48 +172,48 @@ int main (int argc, char **argv)
         getUserInput(userInput);
         populateTree(userInput, root);
     }
-    //Find capital words and output them into the outputContents
+    
     printf("Print BST.\n");
-    //printOrder(root);
-    if(oflag > 0)
-    {
-        if(cflag == 0 && lflag == 0)
-        {
-            transfer(root, outputFile);
-            //deleteTree
-        }
-        else
-        {
-            if(cflag > 0)
-            {
+    printOrder(root);
+    // if(oflag > 0)
+    // {
+    //     if(cflag == 0 && lflag == 0)
+    //     {
+    //         transfer(root, outputFile);
+    //         //deleteTree
+    //     }
+    //     else
+    //     {
+    //         if(cflag > 0)
+    //         {
 
-                printf("outputFile: %s", outputFile);
-                transferCapitals(root, outputFile);
-                //deleteTree
-            }
-            else if(lflag > 0) 
-            {   
-                transferLower(root, outputFile);
-                //deleteTree
-            }
-        }
-    }
-    else
-    {
-        if(cflag == 0 && lflag == 0)
-        {
-            printOrder(root);
-        }
-        else
-        {
-            if(cflag > 0)
-            {
-                printCapitals(root);
-            }
-            else if(lflag > 0) 
-            {   
-                printLower(root);
-            }
-        }
-    }
+    //             printf("outputFile: %s", outputFile);
+    //             transferCapitals(root, outputFile);
+    //             //deleteTree
+    //         }
+    //         else if(lflag > 0) 
+    //         {   
+    //             transferLower(root, outputFile);
+    //             //deleteTree
+    //         }
+    //     }
+    // }
+    // else
+    // {
+    //     if(cflag == 0 && lflag == 0)
+    //     {
+    //         printOrder(root);
+    //     }
+    //     else
+    //     {
+    //         if(cflag > 0)
+    //         {
+    //             printCapitals(root);
+    //         }
+    //         else if(lflag > 0) 
+    //         {   
+    //             printLower(root);
+    //         }
+    //     }
+    // }
 }
