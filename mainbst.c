@@ -10,10 +10,12 @@ void getUserInput(char *userInput)
     {
         printf("adding \\n to (%s)\n", word);
         word[findIndex('\0', word)] = '\n'; //appends \n to word
+        word[findIndex('\0', word)] = '\0'; //appends \n to word
         strcat(userInput, word);       //add word to userInput
         printf("You entered: (%s)\n", word);
         scanf("%s", word);                  //scan for another word
     }
+    printArray(userInput);
 }
 int findIndex(char index, char *word)
 {
@@ -123,7 +125,7 @@ int main (int argc, char **argv)
             {
                 strcpy(outputFile, argv[argc-i+1]);
                 strcpy(temp, outputFile);
-                appendArray(outputFile, ".txt");
+                strcat(outputFile, ".txt");
                 break;
             }
         }
@@ -134,15 +136,15 @@ int main (int argc, char **argv)
     if(!(isEqual(argument, temp)) && !(isEqual(argument, "-c")) && !(isEqual(argument, "-l")))
     {
         //assign the name of the input file to inputFile
-        FILE* spData;
+        FILE* fp;
         char inputFile[SIZE];
         memset(inputFile, 0, SIZE);
         strcpy(inputFile, argv[argc-1]); 
         appendArray(inputFile, ".txt"); //append .txt to inputfile
 
-        spData = fopen(inputFile, "r");
+        fp = fopen(inputFile, "r");
         printf("File name is: %s\n", inputFile);
-        if (spData == NULL)
+        if (fp == NULL)
         {
             printf("Error! opening file\n");
             // Program exits if the file pointer returns NULL.
@@ -150,7 +152,7 @@ int main (int argc, char **argv)
         }
         char c;
         int i = 0;
-        while((c = fgetc(spData)) != EOF)
+        while((c = fgetc(fp)) != EOF)
         {
             if(c != 0)
             {
@@ -162,58 +164,82 @@ int main (int argc, char **argv)
                 break;
             }
         }
-        fclose(spData);
+        fclose(fp);
         //printArray(inputContents);
-        populateTree(inputContents, root); //NEW
+        root = populateTree(inputContents, false); //NEW
     }
     else
     {
         printf("Getting standard input\n");
         getUserInput(userInput);
-        populateTree(userInput, root);
+        root = populateTree(userInput, true);
     }
-    
+
     printf("Print BST.\n");
     printOrder(root);
-    // if(oflag > 0)
-    // {
-    //     if(cflag == 0 && lflag == 0)
-    //     {
-    //         transfer(root, outputFile);
-    //         //deleteTree
-    //     }
-    //     else
-    //     {
-    //         if(cflag > 0)
-    //         {
-
-    //             printf("outputFile: %s", outputFile);
-    //             transferCapitals(root, outputFile);
-    //             //deleteTree
-    //         }
-    //         else if(lflag > 0) 
-    //         {   
-    //             transferLower(root, outputFile);
-    //             //deleteTree
-    //         }
-    //     }
-    // }
-    // else
-    // {
-    //     if(cflag == 0 && lflag == 0)
-    //     {
-    //         printOrder(root);
-    //     }
-    //     else
-    //     {
-    //         if(cflag > 0)
-    //         {
-    //             printCapitals(root);
-    //         }
-    //         else if(lflag > 0) 
-    //         {   
-    //             printLower(root);
-    //         }
-    //     }
-    // }
+    
+    if(oflag > 0)
+    {
+        if(cflag == 0 && lflag == 0)
+        {
+            FILE* fp;
+            fp = fopen(outputFile, "w");
+            if (fp == NULL)
+            {
+                fprintf(stderr, "%s", "File not found in transfer capitals\n");
+                print_usage();
+                exit(5);
+            }
+            transfer(root, fp);
+            fclose(fp);
+        }
+        else
+        {
+            if(cflag > 0)
+            {
+                FILE* fp;
+                fp = fopen(outputFile, "w");
+                if (fp == NULL)
+                {
+                    fprintf(stderr, "%s", "File not found in transfer capitals\n");
+                    print_usage();
+                    exit(5);
+                }
+                transferCapitals(root, fp);
+                fclose(fp);
+                //deleteTree
+            }
+            else if(lflag > 0) 
+            {   
+                FILE* fp;
+                fp = fopen(outputFile, "w");
+                if (fp == NULL)
+                {
+                    fprintf(stderr, "%s", "File not found in transfer capitals\n");
+                    print_usage();
+                    exit(5);
+                }
+                transferLower(root, fp);
+                fclose(fp);
+            }
+        }
+    }
+    else
+    {
+        if(cflag == 0 && lflag == 0)
+        {
+            printOrder(root);
+        }
+        else
+        {
+            if(cflag > 0)
+            {
+                printCapitals(root);
+            }
+            else if(lflag > 0) 
+            {   
+                printLower(root);
+            }
+        }
+    }
 }
