@@ -1,8 +1,11 @@
-mainbst: mainbst.o bstsort.o
-	gcc mainbst.c bstsort.c -o output
+bstsort: bstsort.o
+	gcc bstsort.c -o bstsort
 
-bstsort.o: bstsort.o bstsort.h
+bstsort.o: bstsort.h
 	gcc -c bstsort.c 
+
+clean: 
+	rm *.o bstsort
 
 
 
