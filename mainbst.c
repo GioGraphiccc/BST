@@ -1,40 +1,67 @@
 #include "mainbst.h"
 #include "bstsort.h"
-
+void getUserInput(char *userInput)
+{
+    char *word;
+    char newline = '\n';
+    printf("Enter word. Press enter on blank to stop\n");
+    scanf("%s", word);                      //scan for word
+    while(!stopInput(word))
+    {
+        printf("adding \\n to (%s)\n", word);
+        word[findIndex('\0', word)] = '\n'; //appends \n to word
+        word[findIndex('\0', word)] = '\0'; //appends \n to word
+        strcat(userInput, word);       //add word to userInput
+        printf("You entered: (%s)\n", word);
+        scanf("%s", word);                  //scan for another word
+    }
+    printArray(userInput);
+}
+int findIndex(char index, char *word)
+{
+    int i = 0;
+    for(; word[i] != index; i++);
+    return i;
+}
 void print_usage(){
     printf("Usage: bstsort [-c] [-l] [-o output_file_name] [input_file_name].\n");
 }
-void printArray(char *arr, int size)
+void printArray(char *arr)
 {
     printf("Printing...\n");
-    for(int i = 0; i < size; i++)
+    printf("(");
+    for(int i = 0; i < strlen(arr); i++)
     {
         printf("%c", arr[i]);
     }
-    printf("\n");   
+    printf(")\n");
+    printf("Done.\n");   
 }
-void populateArray(char *filename, char *array)
+bool stopInput(char *word)
 {
-    char ch;
-    FILE *spData;
-    //check if file exists
-        spData = fopen(filename, "r");
-        if (spData == NULL)
-        {
-            fprintf(stderr, "%s", "File not found");
-            print_usage();
-            exit(5);
-        }
-        //contents of the input file is set to inputContents[]
-        int i = 0;
-        while ((ch = fgetc(spData)) != EOF)
-            { 
-                array[i] = ch;
-                i++;
-            }
-            printf("\n");
-        fclose(spData);
+    return (word[0] == '\n' || (word[0] == 'n' && word[1] == '\0')) ? true : false;
+    //word[0] == 0 || word[0] == 13 || (word[0] == 110 && word[1] == 0))
 }
+void appendArray(char *original, char *add)
+{
+    if(strlen(original) == 0)
+    {
+        strcpy(original, add);
+        return;
+    }
+
+    int i = 0; 
+    int j = 0;    
+    i = strlen(original); //start appending up to this
+    while(isLetter(add[j]) || add[j] == '.' || add[j] == '\n')
+    {
+        original[i] = add[j];
+        i++;
+        j++;
+    }
+}
+
+
 int main (int argc, char **argv)
 {
     int input; 
@@ -43,11 +70,15 @@ int main (int argc, char **argv)
     int oflag = 0;
     int lineCount = 1;
     int SIZE = 50;
-    char inputFile[SIZE];
+    
     char outputFile[SIZE];
+    char temp[SIZE];
+    char userInput[SIZE];
     extern char *optarg;
     bool inputFileIncluded = false;
     struct node* root = NULL;
+    char argument[SIZE];
+    int keySize;
     
     
     char *userInputContents = malloc( sizeof(char) * (500));
@@ -63,9 +94,6 @@ int main (int argc, char **argv)
                 break;
             case 'o':
                 oflag=1;
-                //printf("Input: %d\n", input);
-                //printf("Optarg: %s\n", optarg);
-                //strcpy(outputFile, optarg);
                 break;
             case '?':
                 if(optopt == 'o') //supposed to check if o has arguement
@@ -89,79 +117,129 @@ int main (int argc, char **argv)
     // finds and sets the output file name to outputFile
     if(oflag > 0) 
     {
+        char *p;
         for(int i = 1; i < 6; i++)
         {
-            if(strcmp(argv[argc-i], "-o") == 0)
+            p = argv[argc-i];
+            if(*(p) == '-' && *(p+1) == 'o')
             {
                 strcpy(outputFile, argv[argc-i+1]);
+                strcpy(temp, outputFile);
                 strcat(outputFile, ".txt");
                 break;
             }
         }
     }
-
+    
     //if an input file has been included
-    if(strcmp(argv[argc-1],outputFile) != 0 && strcmp(argv[argc-1],"-c") != 0 && strcmp(argv[argc-1],"-l") != 0)
+    strcpy(argument, argv[argc-1]);
+    if(!(isEqual(argument, temp)) && !(isEqual(argument, "-c")) && !(isEqual(argument, "-l")))
     {
         //assign the name of the input file to inputFile
+        FILE* fp;
+        char inputFile[SIZE];
+        memset(inputFile, 0, SIZE);
         strcpy(inputFile, argv[argc-1]); 
-        strcat(inputFile, ".txt");
-        populateArray(inputFile, inputContents);
-        printArray(inputContents, SIZE);
-        inputFileIncluded = true;
+        appendArray(inputFile, ".txt"); //append .txt to inputfile
+
+        fp = fopen(inputFile, "r");
+        printf("File name is: %s\n", inputFile);
+        if (fp == NULL)
+        {
+            printf("Error! opening file\n");
+            // Program exits if the file pointer returns NULL.
+            exit(1);
+        }
+        char c;
+        int i = 0;
+        while((c = fgetc(fp)) != EOF)
+        {
+            if(c != 0)
+            {
+                inputContents[i] = c;   
+                i++;
+            }
+            else
+            {
+                break;
+            }
+        }
+        fclose(fp);
+        //printArray(inputContents);
+        root = populateTree(inputContents, false); //NEW
     }
     else
     {
-        char word[20];
-        printf("Enter word. Enter 'n' to stop\n");
-        scanf("%s", word);
-        if(word[0] != 'n' && word[1] != '\0')
+        printf("Getting standard input\n");
+        getUserInput(userInput);
+        root = populateTree(userInput, true);
+    }
+
+    printf("Print BST.\n");
+    printOrder(root);
+    
+    if(oflag > 0)
+    {
+        if(cflag == 0 && lflag == 0)
         {
-            printf("Inserting %s as root.\n", word);
-            root = insert(root,word); //insert first word as root
-            scanf("%s", word);
-            while (word[0] != 'n' && word[1] != '\0')
+            FILE* fp;
+            fp = fopen(outputFile, "w");
+            if (fp == NULL)
             {
-                printf("Inserting word %s\n", word);
-                insert(root,word);
-                scanf("%s", word);
+                fprintf(stderr, "%s", "File not found in transfer capitals\n");
+                print_usage();
+                exit(5);
+            }
+            transfer(root, fp);
+            fclose(fp);
+        }
+        else
+        {
+            if(cflag > 0)
+            {
+                FILE* fp;
+                fp = fopen(outputFile, "w");
+                if (fp == NULL)
+                {
+                    fprintf(stderr, "%s", "File not found in transfer capitals\n");
+                    print_usage();
+                    exit(5);
+                }
+                transferCapitals(root, fp);
+                fclose(fp);
+                //deleteTree
+            }
+            else if(lflag > 0) 
+            {   
+                FILE* fp;
+                fp = fopen(outputFile, "w");
+                if (fp == NULL)
+                {
+                    fprintf(stderr, "%s", "File not found in transfer capitals\n");
+                    print_usage();
+                    exit(5);
+                }
+                transferLower(root, fp);
+                fclose(fp);
             }
         }
-        
-        printf("printing BST: \n");
-        printOrder(root);
     }
-    //Find capital words and output them into the outputContents
-    if(cflag > 0)
+    else
     {
-        if(inputFileIncluded)   //print all capitals from input file
+        if(cflag == 0 && lflag == 0)
         {
-            
+            printOrder(root);
         }
-        else    //print all capitals from standard input.
+        else
         {
-            
+            if(cflag > 0)
+            {
+                printCapitals(root);
+            }
+            else if(lflag > 0) 
+            {   
+                printLower(root);
+            }
         }
-    }
-    if(oflag > 0) 
-    {
-    //     spData = fopen(outputFile, "w");
-    //     printf("Printing inputContents: \n");
-    //     for (int i = 0; i < 500; i++)
-    //     {
-    //         printf("%c", inputContents[i]);
-    //         fputc(inputContents[i], spData);
-    //     }
-    //     printf("\n");
-    //     fclose(spData);
-    // }
-    // else // if no outputfile was mentioned. Print to screen TODO: CHANGE INPUTCONTENTS TO OUTPUTCONTENTS
-    // {
-    //     printf("No output file detected. Output: \n");
-    //     for (int i = 0; i < 500; i++)
-    //     {
-    //         printf("%c", inputContents[i]);
-    //     }
-    //     printf("\n");
     }
 }

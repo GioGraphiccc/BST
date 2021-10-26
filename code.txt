@@ -1,0 +1,39 @@
+
+populateTree
+while ((ch = fgetc(spData)) != EOF )
+    {
+        copyWord(word,"");
+        while(isLetter(ch) && ch != 0 && ch != 10)
+        {
+            nullIndex = findIndex('\0', word);
+            word[nullIndex] = ch;
+            printf("%d\n",ch);
+            printf("Added letter %c.\n", ch);
+            ch = fgetc(spData);
+        }
+        if(word[0] == 0)
+        {
+            printf("detected\n");
+            continue;
+        }
+            
+        // else
+        // {
+        //     if(isRoot)
+        //     {
+        printf("Word is %s\n", word);
+        struct node newWord;
+        newNode(&newWord, word);
+        root = insert(root,&newWord);
+        memset(word, 0, 20);
+        //     }
+        //     else
+        //     {
+        //         printf("Inserting %s.\n", word);
+        //         struct node newWord;
+        //         newNode(&newWord, word);
+        //         insert(root, &newWord);
+        //         memset(word,0,20);
+        //     }
+        // }
+    }

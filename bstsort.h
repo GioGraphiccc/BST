@@ -3,94 +3,96 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdbool.h>
-bool isGreater(char *a, char *b)
-{
-    for(int i = 0; i < 20; i++)
-    {
-        if(a[i] > b[i])
-            return true;
-        else if(a[i] < b[i])
-            return false;
-    }
-}
-bool isEqual(char *a, char *b)
-{
-    for (int i = 0; i < 20; i++)
-    {
-        if(a[i] != b[i])
-            return false;
-    }
-    return true;
-}
-void printNode(char key[])
-{
-    int i = 0;
-    while(key[i] != '\0')
-    {
-        printf("%c", key[i]);
-        i++;
-    }
-    printf("\n");
-}
+#define LOWERA 97
+#define LOWERZ 122
+#define CAPITALA 65
+#define CAPITALZ 90
+/**
+ *  checks if the character is in between A and Z or a and z
+ */
+bool isLetter(char ch);
+
+/**
+ *  checks if char *a is greater than char *b
+ */
+bool isGreater(char *a, char *b);
+
+/**
+ *  checks if char *a is equal to char *b
+ */
+bool isEqual(char *a, char *b);
+
+/**
+ *  prints the Node to standard output
+ */
+void printNode(char key[]);
+
 
 //NODE STRUCT
 struct node
 {
-    char key[20];
-    bool isCapital; //ADDED
+    int keySize; //Size of key
+    char *key;  //word
+    int Case;   //Case type of word (-1 = word is lower case.) (0 = word is mixed) (1 = word is all capital) 
     struct node *left;
     struct node *right;
 };
-struct node* newNode(char item[], bool capital)
-{
-    struct node* temp = (struct node*)malloc(sizeof(struct node));
-    for(int i = 0; i < 20; i++)
-    {
-        temp->key[i] = item[i];
-    }
-    temp->isCapital = capital;
-    
-    temp->left = temp ->right = NULL;
-    return temp;
-};
+/**
+ * create a new node with word as parameter
+ */
+struct node* newNode(char *item);
 
-void printOrder(struct node* root)
-{
-    if(root != NULL)
-    {
-        printOrder(root->left);
-        printNode(root->key);
-        printOrder(root->right);
-    }
-}
-struct node* insert(struct node* node, char key[])
-{
-    if(node == NULL)
-        return newNode(key);
-    if(isEqual(key, node->key) == false)
-    {
-        if (!(isGreater(key, node->key)))
-            node->left = insert(node->left, key);
-        else if(isGreater(key, node->key))
-            node->right = insert(node->right,key);
-        return node;
-    }    
-}
+/**
+ * Print out the nodes in order recursivley
+ */
+void printOrder(struct node* root);
 
-bool checkWordCapital(char word[])
-{
-    int i = 0;
-    bool isCapital = true;
-    while(word[i] != '\0' && isCapital && word[i] != '\n')
-    {
-        if(word[i] >= 'A' && word[i] <= 'Z')
-            i++;
-        else
-            isCapital == false;
-    }
-    if(isCapital)
-        printf("%s is capital!", word);
-    else 
-        printf("%s is not capital!", word);
-    return isCapital;
-}
+/**
+ *  insert node into bst
+ */
+struct node* insert(struct node* node, char* add);
+
+/**
+ * transfer all words from bst to output file
+ */
+void transfer(struct node* root, FILE* fp);
+
+/**
+ *  transfer only all capital words to output file
+ */
+void transferCapitals(struct node* root, FILE* fp);
+
+/**
+ *  transfer all lowercase words to output file
+ */
+void transferLower(struct node* root, FILE* fp);
+
+/**
+ *  check the case for word. returns -1,0 or 1 depending on case of word
+ * Ex.  APPLE will return 1
+ *      Apple will return 0
+ *      apple will return -1
+ */
+int checkCase(char *word);
+
+/**
+ *  print all capital words from BST onto standard output
+ */
+void printCapitals(struct node* root);
+
+/**
+ *  print all lowercase words from bst onto standard output
+ */
+void printLower(struct node* root);
+
+/**
+ *  will create and insert nodes for the BST from the char array UserInput
+ */
+struct node* populateTree(char *userInput, bool isUserInput);
+
+//Utility
+
+void print_usage();
+int findIndex(char index, char *word);
+void printArray(char *arr);
+bool stopInput(char *word);
